@@ -55,7 +55,7 @@
 namespace {
 
 // Buffer configuration for receiving audio data
-constexpr int kNoOfSamples = 512;
+constexpr int kNoOfSamples = 512;  // this is for storing 30ms at 16KHz
 constexpr int kBufferSize = kNoOfSamples * 2;
 constexpr int kNoOfBuffers = 4;
 constexpr int kOverSampleRate = 384;
@@ -340,7 +340,8 @@ int GetAudioSamples(
                    int duration_ms,
                    int *audio_samples_size, 
                    int16_t **audio_samples) {
-  //printf("\n --GetAudioSamples");
+ printf("\n Start--GetAudioSamples()");
+
   if (!g_is_audio_initialized) {
     int init_status = InitAudioRecording();
     if (init_status != 0) {
@@ -348,24 +349,28 @@ int GetAudioSamples(
     }
     g_is_audio_initialized = true;
   }
+
+
   // This should only be called when the main thread notices that the latest
   // audio sample data timestamp has changed, so that there's new data in the
   // capture ring buffer. The ring buffer will eventually wrap around and
   // overwrite the data, but the assumption is that the main thread is checking
   // often enough and the buffer is large enough that this call will be made
   // before that happens.
+/* */
   const int start_offset = start_ms * (kAudioSampleFrequency / 1000);
-  const int duration_sample_count =
-      duration_ms * (kAudioSampleFrequency / 1000);
+  const int duration_sample_count = duration_ms * (kAudioSampleFrequency / 1000);
+  printf("\n duration_sample_count=%d  kAudioCaptureBufferSize=%d kAudioSampleFrequency=%d start_offset =%d", duration_sample_count, kAudioCaptureBufferSize, kAudioSampleFrequency, start_offset);
   for (int i = 0; i < duration_sample_count; ++i) {
   
     const int capture_index = (start_offset + i) % kAudioCaptureBufferSize;
-    printf("\n i=%d capture_index=%d start_offset =%d value=%d", i, capture_index, start_offset, g_audio_capture_buffer[capture_index] );
+  //  printf("\n i=%d capture_index=%d start_offset =%d value=%d", i, capture_index, start_offset, g_audio_capture_buffer[capture_index] );
     g_audio_output_buffer[i] = g_audio_capture_buffer[capture_index];
   }
-  
+/* */  
   *audio_samples_size = kMaxAudioSampleSize;
   *audio_samples = g_audio_output_buffer;
+  printf("\n before return kMaxAudioSampleSize=%d", kMaxAudioSampleSize);
   return 0;
 }
 
