@@ -340,7 +340,7 @@ int GetAudioSamples(
                    int duration_ms,
                    int *audio_samples_size, 
                    int16_t **audio_samples) {
- printf("\n Start--GetAudioSamples()");
+ //printf("\n Start--GetAudioSamples()");
 
   if (!g_is_audio_initialized) {
     int init_status = InitAudioRecording();
@@ -370,7 +370,7 @@ int GetAudioSamples(
 /* */  
   *audio_samples_size = kMaxAudioSampleSize;
   *audio_samples = g_audio_output_buffer;
-  printf("\n before return kMaxAudioSampleSize=%d", kMaxAudioSampleSize);
+//  printf("\n before return kMaxAudioSampleSize=%d", kMaxAudioSampleSize);
   return 0;
 }
 
