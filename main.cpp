@@ -22,7 +22,7 @@ void readAudio(int cnt) {
                    kFeatureSliceDurationMs,
                    &audio_samples_size,
                    &audio_samples);
-
+  //return;
 // https://arm-software.github.io/CMSIS_5/DSP/html/group__ComplexFFT.html
 #define  FFT_LEN  256   
 // TODO  512/2 = 256 ... but in fact only 480 samples are returned ....
@@ -72,8 +72,8 @@ void readAudio(int cnt) {
   
   printf("\n ipeak250=%f mpeak250=%f", ipeak250, mpeak250);
   printf("\n ipeak500=%f mpeak500=%f", ipeak500, mpeak500);
-  if (mpeak500 > 9000.0  && mpeak500 > 4000.0){
-       printf("\n --- FOUND mpeak500 > 9000.0  && mpeak500 > 4000.0 --- ");
+  if (mpeak250 > 9000.0  && mpeak500 > 4000.0){
+       printf("\n --- FOUND mpeak250 > 9000.0  && mpeak500 > 4000.0 --- ");
   }
   // printf("\n after GetAudioSamples() ret = %d audio_samples_size=%d", ret, audio_samples_size);
 }
@@ -81,8 +81,12 @@ void readAudio(int cnt) {
 int main(void)
 {
   // KF66: 16KHz *30 ms =  480 samples per sec,i the output array size:  512
+  int i=0;
   while (1) {
+     printf("\n %d ", i++);
+     if (i > 999999) i=0;
      readAudio(1);
+    
   }
   return 0;
 }
