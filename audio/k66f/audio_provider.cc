@@ -241,7 +241,7 @@ void Da7212Initialize(void) {
 }
 
 // Initialization for receiving audio data
-int InitAudioRecording(tflite::ErrorReporter *error_reporter) {
+int InitAudioRecording() {
   edma_config_t dma_config = {0};
   sai_config_t sai_config;
   sai_transfer_format_t sai_format;
@@ -335,13 +335,15 @@ int InitAudioRecording(tflite::ErrorReporter *error_reporter) {
 }  // namespace
 
 // Main entry point for getting audio data.
-int GetAudioSamples( //tflite::ErrorReporter *error_reporter,
-                             int start_ms, int duration_ms,
-                             int *audio_samples_size, int16_t **audio_samples) {
+int GetAudioSamples(
+                   int start_ms, 
+                   int duration_ms,
+                   int *audio_samples_size, 
+                   int16_t **audio_samples) {
   //printf("\n --GetAudioSamples");
   if (!g_is_audio_initialized) {
-    TfLiteStatus init_status = InitAudioRecording(error_reporter);
-    if (init_status != kTfLiteOk) {
+    int init_status = InitAudioRecording();
+    if (init_status != 0) {
       return init_status;
     }
     g_is_audio_initialized = true;
