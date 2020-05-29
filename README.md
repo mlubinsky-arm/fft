@@ -5,6 +5,15 @@ mbed compile --target K66F --toolchain GCC_ARM --profile release --flash --sterm
 
 ## CMSIS FFT
 
+<http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.447.4272&rep=rep1&type=pdf>
+
+From the link above:
+```
+ CMSIS algorithm can compute complex FFT of the arrays of size 16, 64, 256 or 1024. 
+For the real FFT it can be 128, 512 or 2048 samples. 
+```
+
+
 <https://arm-software.github.io/CMSIS_5/DSP/html/group__RealFFT.html>
 
 <https://arm-software.github.io/CMSIS_5/DSP/html/group__ComplexFFT.html>
