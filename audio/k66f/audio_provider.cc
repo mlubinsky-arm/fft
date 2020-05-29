@@ -357,17 +357,16 @@ int GetAudioSamples(
   // overwrite the data, but the assumption is that the main thread is checking
   // often enough and the buffer is large enough that this call will be made
   // before that happens.
-/* */
+
   const int start_offset = start_ms * (kAudioSampleFrequency / 1000);
   const int duration_sample_count = duration_ms * (kAudioSampleFrequency / 1000);
   printf("\n duration_sample_count=%d  kAudioCaptureBufferSize=%d kAudioSampleFrequency=%d start_offset =%d", duration_sample_count, kAudioCaptureBufferSize, kAudioSampleFrequency, start_offset);
   for (int i = 0; i < duration_sample_count; ++i) {
-  
     const int capture_index = (start_offset + i) % kAudioCaptureBufferSize;
-  //  printf("\n i=%d capture_index=%d start_offset =%d value=%d", i, capture_index, start_offset, g_audio_capture_buffer[capture_index] );
-    g_audio_output_buffer[i] = g_audio_capture_buffer[capture_index];
+    //  printf("\n i=%d capture_index=%d start_offset =%d value=%d", i, capture_index, start_offset, g_audio_capture_buffer[capture_index] );
+     g_audio_output_buffer[i] = g_audio_capture_buffer[capture_index];
   }
-/* */  
+
   *audio_samples_size = kMaxAudioSampleSize;
   *audio_samples = g_audio_output_buffer;
 //  printf("\n before return kMaxAudioSampleSize=%d", kMaxAudioSampleSize);
