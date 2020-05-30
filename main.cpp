@@ -17,6 +17,7 @@ In this app we need to capture for FFT ~1.2 sec of data (30ms * 40),
 
 #include "250Hz_2048points.h"
 #include "500Hz_2048points.h"
+#include "i500Hz_2048points.h"
 
 //cut -f 1-2048 -d " " 250Hz.txt > 250_2048.txt
 //cut -f 1-2048 -d " " 500Hz.txt > 500_2048.txt
@@ -127,18 +128,16 @@ void audioFFT() { // to be called in infinite loop
   }
 }  //end of audioFFT()
 
-void test_cmsis_fft(float* data, int data_size, char* name)
+//void test_cmsis_fft(float* data, int data_size, char* name)
+void test_cmsis_fft(int* data, int data_size, char* name)
 {
   #define FFT_SIZE 2048
-  //int data_size = sizeof(*data)/sizeof((*data)[0]);
+
   printf("\n name=%s  size=%d", name, data_size);
   if (data_size != FFT_SIZE){
     printf ("Error data_size=%d != FFT_SIZE=%d",data_size , FFT_SIZE);
     return;
   }
-
- //int size_250 = sizeof(f250)/sizeof(f250[0]);
- //int size_500 = sizeof(f500)/sizeof(f500[0]);
 
   static arm_rfft_instance_q15 fft_instance;
   static q15_t output[FFT_SIZE*2]; //has to be twice FFT size
@@ -148,21 +147,26 @@ void test_cmsis_fft(float* data, int data_size, char* name)
          0, // forward FFT
          1 // output bit order is normal
   );
-  
+
   if (status != 0){
-    printf( "FFT init ERROR status= %d\n", status);
+    printf( "FFT init status= %d\n", status);
     return;
   }
   arm_rfft_q15(&fft_instance, (q15_t*)data, output);
+
+  printf( "\n AFTER arm_rfft_q15 ");
+
   arm_abs_q15(output, output, FFT_SIZE*2);
+
+  printf( "\n AFTER arm_abs_q15 ");
+
   for (int i=0; i < data_size; i++) {
-    if  (output[i] > 2000){
+    if  (output[i] > 0){
      printf("\n i=%d output= %d freq: (16000/i)=%d", i, output[i], 16000/i);
     }
   }
 
 }
-
 
 int main(void)
 {
@@ -174,6 +178,7 @@ int main(void)
      //audioFFT();
   }
   */
-  test_cmsis_fft(f250, 2048, (char *)(" f250 "));
-  test_cmsis_fft(f500, 2048 , (char *)(" f500 "));
+  //test_cmsis_fft(f250, 2048, (char *)(" float 250Hz "));
+  //test_cmsis_fft(f500, 2048 , (char *)(" float 500Hz "));
+  test_cmsis_fft(i500, 2048 , (char *)(" integer 500Hz "));
 }
