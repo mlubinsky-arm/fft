@@ -15,19 +15,17 @@ In this app we need to capture for FFT ~1.2 sec of data (30ms * 40),
 
 #include "mbed.h"
 
-
+// Files for testing FFT:
 #include "i500Hz_2048points.h"
 #include "i250Hz_2048points.h"
-
-//cut -f 1-2048 -d " " 250Hz.txt > 250_2048.txt
-//cut -f 1-2048 -d " " 500Hz.txt > 500_2048.txt
 
 void audioFFT() { // to be called in infinite loop
   int start_ms=0; // TODO how to read the new data? Do we need to calculate: start_ms += 30*4 ?
   constexpr int kFeatureSliceDurationMs = 30 ;
-  // line above is cross-related to:
-  // 1) int kNoOfSamples = 512; in audio_privider.cc
-  // 2) kMaxAudioSampleSize = 512; in micro_model_settings.h
+  // line above is cross-related with values in in audio_privider.cc:
+  // kAudioSampleFrequency = 16000  Hz
+  // 1) int kNoOfSamples = 512;
+  // 2) kMaxAudioSampleSize = 512;
 
   // To capture samples  ~1.2 sec of data (30ms * 40) we need to have N_BUFFERS 32 or 64:
   #define N_BUFFERS 1
@@ -40,17 +38,35 @@ void audioFFT() { // to be called in infinite loop
   }
   int big_index=0;
   // to grab ~1 sec of data N_BUFFERS should be ~32 or 64
+  int32_t latest_audio_time_ms=0;
+  static int32_t previous_audio_time_ms=0;
   for (int i=0; i <  N_BUFFERS; i++ ){
     int16_t* audio_samples = nullptr;
     int audio_samples_size = 0;
+
+    while  (1){ // check what new 30ms chunk of audio data in buffer
+      latest_audio_time_ms = LatestAudioTimestamp();
+      //printf("\n latest_audio_time_ms =%ld  previous_audio_time_ms=%ld kFeatureSliceDurationMs=%d", latest_audio_time_ms,  previous_audio_time_ms, kFeatureSliceDurationMs);
+      if (latest_audio_time_ms == 0 || (latest_audio_time_ms -  previous_audio_time_ms > kFeatureSliceDurationMs) ){
+        previous_audio_time_ms = latest_audio_time_ms;
+        //printf("\n break");
+        break;
+      }
+      printf("\n wait");
+      ThisThread::sleep_for(kFeatureSliceDurationMs);
+    }
+
     GetAudioSamples(  // one call GetAudioSamples() gives 30ms of data only
                    start_ms + i * kFeatureSliceDurationMs, // TODO
                    kFeatureSliceDurationMs,
                    &audio_samples_size,
                    &audio_samples);
-    if  (audio_samples_size > 480){    //  it usually returns 512
+
+/*
+    if  (audio_samples_size > 480){    //  it usually returns 512 samples but the samples with index [480 - 511] are 0
         audio_samples_size = 480;
     };
+*/
     // copy data to the bigger array
     for ( int j=0; j < audio_samples_size; j++){
       if (big_index >= BIG_SIZE) break;
@@ -58,10 +74,11 @@ void audioFFT() { // to be called in infinite loop
       big_index++;
     }
   }
- 
+
+  return;
 
 // https://arm-software.github.io/CMSIS_5/DSP/html/group__ComplexFFT.html
-#define  FFT_LEN  256  // this is because  in micro_model_settings.h  : kMaxAudioSampleSize = 512
+#define  FFT_LEN  256  // this is because  in audio_provider.cc  : kMaxAudioSampleSize = 512
 //int FFT_LEN = BIG_SIZE /2;
 // TODO  512/2 = 256 ... but in fact only 480 samples are returned  which is 30 sec of data, TODO: we need to handle 1.2 sec of data
    const static arm_cfft_instance_f32 *S;
@@ -170,15 +187,13 @@ void test_cmsis_fft(int* data, int data_size, char* name)
 
 int main(void)
 {
-  /*
   int i=0;
   while (1) {
      printf("\n %d ", i++);
      if (i > 999999) i=0;
-     //audioFFT();
+     audioFFT();
   }
-  */
 
-  test_cmsis_fft(i500, 2048 , (char *)(" integer 500Hz "));
-  test_cmsis_fft(i250, 2048 , (char *)(" integer 250Hz "));
+  // test_cmsis_fft(i500, 2048 , (char *)(" integer 500Hz "));
+  // test_cmsis_fft(i250, 2048 , (char *)(" integer 250Hz "));
 }

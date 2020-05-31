@@ -1,5 +1,11 @@
 #include "../audio_provider.h"
-#include "micro_model_settings.h"
+
+constexpr int kAudioSampleFrequency = 16000;
+
+// The size of the input time series data we pass to the FFT to produce the
+// frequency information. This has to be a power of two, and since we're dealing
+// To capture  30ms of 16KHz inputs, we need 480 samples; 512  is the next power of 2.
+constexpr int kMaxAudioSampleSize = 512;
 
 // mbed and NXP FRDM-K66F Headers
 #include "fsl_clock_config.h"  // NOLINT
@@ -364,6 +370,7 @@ int GetAudioSamples(
   for (int i = 0; i < duration_sample_count; ++i) {
     const int capture_index = (start_offset + i) % kAudioCaptureBufferSize;
     //  printf("\n i=%d capture_index=%d start_offset =%d value=%d", i, capture_index, start_offset, g_audio_capture_buffer[capture_index] );
+    if (i==0) printf("\n i=%d capture_index=%d  value=%d", i, capture_index,  g_audio_capture_buffer[capture_index] );
      g_audio_output_buffer[i] = g_audio_capture_buffer[capture_index];
   }
 
