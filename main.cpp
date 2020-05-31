@@ -15,9 +15,9 @@ In this app we need to capture for FFT ~1.2 sec of data (30ms * 40),
 
 #include "mbed.h"
 
-#include "250Hz_2048points.h"
-#include "500Hz_2048points.h"
+
 #include "i500Hz_2048points.h"
+#include "i250Hz_2048points.h"
 
 //cut -f 1-2048 -d " " 250Hz.txt > 250_2048.txt
 //cut -f 1-2048 -d " " 500Hz.txt > 500_2048.txt
@@ -161,8 +161,8 @@ void test_cmsis_fft(int* data, int data_size, char* name)
   printf( "\n AFTER arm_abs_q15 ");
 
   for (int i=0; i < data_size; i++) {
-    if  (output[i] > 0){
-     printf("\n i=%d output= %d freq: (16000/i)=%d", i, output[i], 16000/i);
+    if  (output[i] > 1){
+     printf("\n i=%d output= %d freq: i*(16000/FFT_SIZE)=%d", i, output[i], i*16000/FFT_SIZE);
     }
   }
 
@@ -178,7 +178,7 @@ int main(void)
      //audioFFT();
   }
   */
-  //test_cmsis_fft(f250, 2048, (char *)(" float 250Hz "));
-  //test_cmsis_fft(f500, 2048 , (char *)(" float 500Hz "));
+
   test_cmsis_fft(i500, 2048 , (char *)(" integer 500Hz "));
+  test_cmsis_fft(i250, 2048 , (char *)(" integer 250Hz "));
 }
