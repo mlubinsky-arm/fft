@@ -370,8 +370,8 @@ int GetAudioSamples(
   for (int i = 0; i < duration_sample_count; ++i) {
     const int capture_index = (start_offset + i) % kAudioCaptureBufferSize;
     //  printf("\n i=%d capture_index=%d start_offset =%d value=%d", i, capture_index, start_offset, g_audio_capture_buffer[capture_index] );
-    //if (i==0) 
-    printf("\n i=%d capture_index=%d  value=%d", i, capture_index,  g_audio_capture_buffer[capture_index] );
+     //if (i==0)
+     //   printf("\n GetAudioSamples(): i=%d capture_index=%d  value=%d", i, capture_index,  g_audio_capture_buffer[capture_index] );
      g_audio_output_buffer[i] = g_audio_capture_buffer[capture_index];
   }
 
