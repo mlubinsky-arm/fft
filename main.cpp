@@ -20,22 +20,27 @@ In this app we need to capture for FFT ~1.2 sec of data (30ms * 40),
 //#include "iSound.h"
 
 #define FFT_SIZE 2048
+//#define FFT_SIZE 1024
 void cmsis_fft(int* data, int data_size);
 
 void audioFFT() {
 
-    int  fft_samples[FFT_SIZE];
+    static int  fft_samples[FFT_SIZE];
     int big_index=0;
     for (int i=0; i < FFT_SIZE; i++){
-      fft_samples[i]=0;
+        fft_samples[i]=0;
     }
+    printf("\n -------- before calling cmsis_fft");
+    //cmsis_fft( fft_samples, FFT_SIZE);
+    //return;
     int start_ms=0;
     constexpr int kFeatureSliceDurationMs = 30 ;
     // line above is cross-related with variables  in audio_privider.cc:
     // 1) kAudioSampleFrequency = 16000  Hz  (1600*30/1000)=480 data points for 30ms
     // 2) int kNoOfSamples = 512;
     // 3) kMaxAudioSampleSize = 512;
-    for (int k=0; k <4; k++) {  //4 *512 = 2048 data points
+    int K_MAX=FFT_SIZE / 512;
+    for (int k=0; k<K_MAX; k++) {  //4 *512 = 2048 data points
       int16_t* audio_samples = nullptr;
       int audio_samples_size = 0;
 
@@ -47,13 +52,13 @@ void audioFFT() {
 
       for ( int j=0; j < audio_samples_size; j++){
         if (big_index >= FFT_SIZE) break;
-        fft_samples[big_index] = audio_samples[j];
+        fft_samples[big_index] = int (audio_samples[j]);
         big_index++;
       }
     }
 
       if (big_index == FFT_SIZE) {
-          printf("\n -big_index == FFT_SIZE before calling cmsis_fft");
+          printf("\n -------- before calling cmsis_fft");
           cmsis_fft( fft_samples, FFT_SIZE);
           printf("\n -------- after calling cmsis_fft");
       }
@@ -65,7 +70,6 @@ void cmsis_fft(int* data, int data_size)
     printf ("Error data_size=%d != FFT_SIZE=%d",data_size , FFT_SIZE);
     return;
   }
-  printf("\n INSIDE cmsis_fft ");
 
   static arm_rfft_instance_q15 fft_instance;
   static q15_t output[FFT_SIZE*2]; //has to be twice FFT size
@@ -75,26 +79,25 @@ void cmsis_fft(int* data, int data_size)
          0, // forward FFT
          1 // output bit order is normal
   );
-  printf( "FFT init status= %d\n", status);
+
   if (status != 0){
     return;
   }
 
-  printf("\n Before arm_rfft_q15()");
-
   arm_rfft_q15(&fft_instance, (q15_t*)data, output);
-  printf( "\n AFTER arm_rmfft_q15 ");
-  return;
   arm_abs_q15(output, output, FFT_SIZE*2);
 
-  printf( "\n AFTER arm_abs_q15 ");
-
+  int freq=0;
   for (int i=0; i < data_size; i++) {
-    if  (output[i] > 2){
-     printf("\n i=%d output= %d freq: i*(16000/FFT_SIZE)=%d", i, output[i], i*16000/FFT_SIZE);
+    if  (output[i] > 100){
+    freq=  i*16000/FFT_SIZE;
+     printf("\n i=%d signal= %d frequency=%d", i, output[i], freq);
+     if (freq == 250 || freq==500){
+       printf("\n====================");
+     }
     }
   }
-   printf("\n =====  END OF FFT =========");
+
 }
 
 int main(void)
