@@ -342,9 +342,9 @@ int InitAudioRecording() {
 
 // Main entry point for getting audio data.
 int GetAudioSamples(
-                   int start_ms, 
+                   int start_ms,
                    int duration_ms,
-                   int *audio_samples_size, 
+                   int *audio_samples_size,
                    int16_t **audio_samples) {
  //printf("\n Start--GetAudioSamples()");
 
@@ -366,11 +366,12 @@ int GetAudioSamples(
 
   const int start_offset = start_ms * (kAudioSampleFrequency / 1000);
   const int duration_sample_count = duration_ms * (kAudioSampleFrequency / 1000);
-  printf("\n duration_sample_count=%d  kAudioCaptureBufferSize=%d kAudioSampleFrequency=%d start_offset =%d", duration_sample_count, kAudioCaptureBufferSize, kAudioSampleFrequency, start_offset);
+  //printf("\n duration_sample_count=%d  kAudioCaptureBufferSize=%d kAudioSampleFrequency=%d start_offset =%d", duration_sample_count, kAudioCaptureBufferSize, kAudioSampleFrequency, start_offset);
   for (int i = 0; i < duration_sample_count; ++i) {
     const int capture_index = (start_offset + i) % kAudioCaptureBufferSize;
     //  printf("\n i=%d capture_index=%d start_offset =%d value=%d", i, capture_index, start_offset, g_audio_capture_buffer[capture_index] );
-    if (i==0) printf("\n i=%d capture_index=%d  value=%d", i, capture_index,  g_audio_capture_buffer[capture_index] );
+    //if (i==0) 
+    printf("\n i=%d capture_index=%d  value=%d", i, capture_index,  g_audio_capture_buffer[capture_index] );
      g_audio_output_buffer[i] = g_audio_capture_buffer[capture_index];
   }
 
