@@ -19,8 +19,8 @@ In this app we need to capture for FFT ~1.2 sec of data (30ms * 40),
 #include "i250Hz_2048points.h"
 //#include "iSound.h"
 
-#define FFT_SIZE 2048
-//#define FFT_SIZE 1024
+//#define FFT_SIZE 2048
+#define FFT_SIZE 1024
 void cmsis_fft(int* data, int data_size);
 
 void audioFFT() {
@@ -30,9 +30,7 @@ void audioFFT() {
     for (int i=0; i < FFT_SIZE; i++){
         fft_samples[i]=0;
     }
-    printf("\n -------- before calling cmsis_fft");
-    //cmsis_fft( fft_samples, FFT_SIZE);
-    //return;
+
     int start_ms=0;
     constexpr int kFeatureSliceDurationMs = 30 ;
     // line above is cross-related with variables  in audio_privider.cc:
@@ -87,14 +85,11 @@ void cmsis_fft(int* data, int data_size)
   arm_rfft_q15(&fft_instance, (q15_t*)data, output);
   arm_abs_q15(output, output, FFT_SIZE*2);
 
-  int freq=0;
+  float freq=0;
   for (int i=0; i < data_size; i++) {
-    if  (output[i] > 100){
     freq=  i*16000/FFT_SIZE;
-     printf("\n i=%d signal= %d frequency=%d", i, output[i], freq);
-     if (freq == 250 || freq==500){
-       printf("\n====================");
-     }
+    if  ( (freq >= 240.0 && freq <= 260.0) || (freq >= 480.0 && freq <= 520.0)){
+     printf("\n i=%d  frequency=%.2f  signal= %d", i,  freq, output[i]);
     }
   }
 
