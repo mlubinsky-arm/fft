@@ -13,17 +13,17 @@ In this app we need to capture for FFT ~1.2 sec of data (30ms * 40),
 #include "arm_const_structs.h"
 
 #include "mbed.h"
-//#include "platform/mbed_thread.h"
 
 DigitalOut led(LED1);
+
 // Files for testing CMSIS-FFT:
 
 //#include "i500Hz_2048points.h"
 //#include "i250Hz_2048points.h"
 //#include "iSound.h"
 
-//#define FFT_SIZE 2048
-#define FFT_SIZE 1024
+#define FFT_SIZE 2048
+//#define FFT_SIZE 1024
 void cmsis_fft(int* data, int data_size);
 
 void audioFFT() {
@@ -101,7 +101,7 @@ if (lr > 0.5) {
   //ThisThread::sleep_for(1000); //ms
   led=1; // off
 }
- 
+
 
 /*
   float freq=0;
