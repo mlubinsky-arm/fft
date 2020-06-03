@@ -13,10 +13,13 @@ In this app we need to capture for FFT ~1.2 sec of data (30ms * 40),
 #include "arm_const_structs.h"
 
 #include "mbed.h"
+//#include "platform/mbed_thread.h"
 
-// Files for testing FFT:
-#include "i500Hz_2048points.h"
-#include "i250Hz_2048points.h"
+DigitalOut led(LED1);
+// Files for testing CMSIS-FFT:
+
+//#include "i500Hz_2048points.h"
+//#include "i250Hz_2048points.h"
 //#include "iSound.h"
 
 //#define FFT_SIZE 2048
@@ -56,9 +59,9 @@ void audioFFT() {
     }
 
       if (big_index == FFT_SIZE) {
-          printf("\n -------- before calling cmsis_fft");
+          //printf("\n -------- before calling cmsis_fft");
           cmsis_fft( fft_samples, FFT_SIZE);
-          printf("\n -------- after calling cmsis_fft");
+          //printf("\n -------- after calling cmsis_fft");
       }
 }
 
@@ -70,7 +73,7 @@ void cmsis_fft(int* data, int data_size)
   }
 
   static arm_rfft_instance_q15 fft_instance;
-  static q15_t output[FFT_SIZE*2]; //has to be twice FFT size
+  static q15_t s[FFT_SIZE*2]; //has to be twice FFT size
   arm_status status = arm_rfft_init_q15(
          &fft_instance,
          FFT_SIZE, // bin count
@@ -82,17 +85,33 @@ void cmsis_fft(int* data, int data_size)
     return;
   }
 
-  arm_rfft_q15(&fft_instance, (q15_t*)data, output);
-  arm_abs_q15(output, output, FFT_SIZE*2);
+  arm_rfft_q15(&fft_instance, (q15_t*)data, s);
+  arm_abs_q15(s, s, FFT_SIZE*2);
 
+float Res = -1.60016261 -0.00092212 * s[30] + 0.0042692 * s[31] + 0.00153321* s[32] + 0.00034351* s[61] -0.00043756* s[62] -0.00045669* s[63];
+float  lr = 1.0 / (1.0 + exp(-Res));
+ 
+printf ("\n Res=%f   LR=%f", Res, lr);
+led=1; //off
+
+if (lr > 0.5) {
+  printf ("\n ----------------Blink-----------------");
+  led = 0; // on
+  wait(0.5); //If you wish to wait (without sleeping), call 'wait_us'.
+  //ThisThread::sleep_for(1000); //ms
+  led=1; // off
+}
+ 
+
+/*
   float freq=0;
   for (int i=0; i < data_size; i++) {
     freq=  i*16000/FFT_SIZE;
     if  ( (freq >= 240.0 && freq <= 260.0) || (freq >= 480.0 && freq <= 520.0)){
-     printf("\n i=%d  frequency=%.2f  signal= %d", i,  freq, output[i]);
+     printf("\n i=%d  frequency=%.2f  signal= %d", i,  freq, s[i]);
     }
   }
-
+*/
 }
 
 int main(void)
