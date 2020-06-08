@@ -1,12 +1,8 @@
 ## FFT audio example
-The K66F audio driver  reset the frequency, so use the  baudrate 14500 for the serial port
 ```
-mbed compile --target K66F --toolchain GCC_ARM --profile release --flash --sterm --baudrate  14500
+mbed compile --target K66F --toolchain GCC_ARM --profile release --flash --sterm --baudrate  115200
 ```
-If you edit the main.cpp to call only  CMSIS FFT cmsis_fft() then use thet baudrate 9600:
-```
-mbed compile --target K66F --toolchain GCC_ARM --profile release --flash --sterm --baudrate 9600
-```
+
 ## Reading data from the serial port
 
 File ```screen.sh``` allows to read from the serial port.
