@@ -1,7 +1,7 @@
 # Reading from the serial port using minicom
 # Install minicom  (brew install minicom)
 # On Mac configure Terminal.app: Preferncess -> Profiles -> Keyboard -> Checkbox "Use Options as Meta key"
-# To exit from minicom under Mac Terminal: Press "Options and x"
+# To exit from minicom under Mac Terminal: press "option and x". 
 
 m=`ls /dev/tty.usbmodem*`
 status=$?

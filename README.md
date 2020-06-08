@@ -19,7 +19,7 @@ Install minicom  (brew install minicom).
 
 On Mac configure Terminal.app: Preferncess -> Profiles -> Keyboard -> Checkbox "Use Options as Meta key"
 
-To exit from minicom under Mac Terminal: Press "Options and x".
+To exit from minicom under Mac Terminal: press "option and x". You will see the confimation dialog.
 
 ## CMSIS FFT
 
