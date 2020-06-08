@@ -27,14 +27,14 @@ DigitalOut led(LED1);
 void cmsis_fft(int* data, int data_size);
 
 void audioFFT() {
-
+    static int32_t  previous_timestamp=0;
     static int  fft_samples[FFT_SIZE];
     int big_index=0;
     for (int i=0; i < FFT_SIZE; i++){
         fft_samples[i]=0;
     }
 
-    int start_ms=0;
+    //int start_ms=0;
     constexpr int kFeatureSliceDurationMs = 30 ;
     // line above is cross-related with variables  in audio_privider.cc:
     // 1) kAudioSampleFrequency = 16000  Hz  (1600*30/1000)=480 data points for 30ms
@@ -46,7 +46,7 @@ void audioFFT() {
       int audio_samples_size = 0;
 
       GetAudioSamples(  // one call GetAudioSamples() gives 30ms of audio = 512 data points @16000 Hz
-                   start_ms + k * kFeatureSliceDurationMs, // TODO
+                   k * kFeatureSliceDurationMs, // TODO
                    kFeatureSliceDurationMs,
                    &audio_samples_size,
                    &audio_samples);
@@ -56,6 +56,12 @@ void audioFFT() {
         fft_samples[big_index] = int (audio_samples[j]);
         big_index++;
       }
+      int32_t  latest_timestamp = LatestAudioTimestamp();
+      while (latest_timestamp - previous_timestamp < kFeatureSliceDurationMs){
+        ThisThread::sleep_for(kFeatureSliceDurationMs);
+        latest_timestamp = LatestAudioTimestamp();
+      }
+      previous_timestamp = latest_timestamp;
     }
 
       if (big_index == FFT_SIZE) {
@@ -91,19 +97,19 @@ void cmsis_fft(int* data, int data_size)
 float Res = -1.60016261 -0.00092212 * s[30] + 0.0042692 * s[31] + 0.00153321* s[32] + 0.00034351* s[61] -0.00043756* s[62] -0.00045669* s[63];
 float  lr = 1.0 / (1.0 + exp(-Res));
  
-printf ("\n Res=%f   LR=%f", Res, lr);
+//printf ("\n Res=%f   LR=%f", Res, lr);
 led=1; //off
 
 if (lr > 0.5) {
   printf ("\n ----------------Blink-----------------");
   led = 0; // on
-  wait(0.5); //If you wish to wait (without sleeping), call 'wait_us'.
+  //wait(0.1); //If you wish to wait (without sleeping), call 'wait_us'.
   //ThisThread::sleep_for(1000); //ms
   led=1; // off
 }
 
 
-/*
+ 
   float freq=0;
   for (int i=0; i < data_size; i++) {
     freq=  i*16000/FFT_SIZE;
@@ -111,7 +117,7 @@ if (lr > 0.5) {
      printf("\n i=%d  frequency=%.2f  signal= %d", i,  freq, s[i]);
     }
   }
-*/
+
 }
 
 int main(void)

@@ -259,7 +259,7 @@ int InitAudioRecording() {
 
   // Set Clock to 180 MHz
   // BOARD_BootClockRUN();
-  BOARD_BootClockHSRUN();
+  // BOARD_BootClockHSRUN();    - TODO Michael Lubinsky commented this line
 
   // Enable Code Caching to improve performance
   LMEM_EnableCodeCache(LMEM, true);

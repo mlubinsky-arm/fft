@@ -1,0 +1,14 @@
+{
+    "target_overrides": {
+        "*": {
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.stdio-convert-newlines"           : true,
+            "platform.stdio-buffered-serial"            : true,
+            "platform.stdio-flush-at-exit"              : true,
+            "rtos.main-thread-stack-size"               : 5120,
+            "mbed-trace.enable"                         : null,
+            "events.shared-stacksize"                   : 2048
+            }
+    }
+}
+
