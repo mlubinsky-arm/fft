@@ -7,6 +7,12 @@ If you edit the main.cpp to call only  CMSIS FFT cmsis_fft() then use thet baudr
 ```
 mbed compile --target K66F --toolchain GCC_ARM --profile release --flash --sterm --baudrate 9600
 ```
+## Reading data from the serial port
+
+File ```screen.sh``` allows to read from the serial port.
+Output will be in file named screenlog.0
+
+To exit the screen hit "Ctrl-A" followed by "k"
 
 ## CMSIS FFT
 
