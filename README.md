@@ -3,12 +3,23 @@
 mbed compile --target K66F --toolchain GCC_ARM --profile release --flash --sterm --baudrate  115200
 ```
 
-## Reading data from the serial port
+## Reading data from the serial port using screen
 
-File ```screen.sh``` allows to read from the serial port.
+File ```screen.sh``` allows to read from the serial port using screen.
 Output will be in file named screenlog.0
 
 To exit the screen hit "Ctrl-A" followed by "k"
+
+## Readingi data from the serial port using minicom
+
+File ```min.sh``` allows to read from the serial port using minicom.
+Output liww be in file log.txt
+
+Install minicom  (brew install minicom).
+
+On Mac configure Terminal.app: Preferncess -> Profiles -> Keyboard -> Checkbox "Use Options as Meta key"
+
+To exit from minicom under Mac Terminal: Press "Options and x".
 
 ## CMSIS FFT
 
