@@ -94,21 +94,32 @@ void cmsis_fft(int* data, int data_size)
   arm_rfft_q15(&fft_instance, (q15_t*)data, s);
   arm_abs_q15(s, s, FFT_SIZE*2);
 
-/*
-float Res = -1.60016261 -0.00092212 * s[30] + 0.0042692 * s[31] + 0.00153321* s[32] + 0.00034351* s[61] -0.00043756* s[62] -0.00045669* s[63];
-float  lr = 1.0 / (1.0 + exp(-Res));
 
- printf ("\n Res=%f   LR=%f", Res, lr);
+float coeff[10] = {
+  0.10956007, -0.13896823,  0.01236551,  0.23775266,  0.55015138,
+  0.03702403,  0.01534263,  -0.06332641, -0.08341657, -0.07537096
+};
+
+int fft_index[10]={242, 246, 250, 254, 258, 492, 496, 500, 504, 508};
+
+float linear = -1.45595351; // model intercept
+for (int i=0; i<10; i++){
+  linear = linear +  (coeff[i] * s[fft_index[i]]);
+}
+//Logistic regression
+float  lr = 1.0 / (1.0 + exp(-linear));
+
+printf ("\n logistic_regression=%f   linear=%f", lr, linear);
 led=1; //off
 
 if (lr > 0.5) {
   printf ("\n ----------------Blink-----------------");
   led = 0; // on
-  //wait(0.1); //If you wish to wait (without sleeping), call 'wait_us'.
+  wait(0.8); //If you wish to wait (without sleeping), call 'wait_us'.
   //ThisThread::sleep_for(1000); //ms
   led=1; // off
 }
-*/
+/*
   float freq;
   static int header=0;
   if (header == 0){
@@ -127,7 +138,7 @@ if (lr > 0.5) {
     //}
   }
   printf("\n");
-
+*/
 }
 
 int main(void)
