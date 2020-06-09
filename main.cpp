@@ -94,10 +94,11 @@ void cmsis_fft(int* data, int data_size)
   arm_rfft_q15(&fft_instance, (q15_t*)data, s);
   arm_abs_q15(s, s, FFT_SIZE*2);
 
+/*
 float Res = -1.60016261 -0.00092212 * s[30] + 0.0042692 * s[31] + 0.00153321* s[32] + 0.00034351* s[61] -0.00043756* s[62] -0.00045669* s[63];
 float  lr = 1.0 / (1.0 + exp(-Res));
- 
-//printf ("\n Res=%f   LR=%f", Res, lr);
+
+ printf ("\n Res=%f   LR=%f", Res, lr);
 led=1; //off
 
 if (lr > 0.5) {
@@ -107,16 +108,25 @@ if (lr > 0.5) {
   //ThisThread::sleep_for(1000); //ms
   led=1; // off
 }
-
-
- 
-  float freq=0;
-  for (int i=0; i < data_size; i++) {
-    freq=  i*16000/FFT_SIZE;
-    if  ( (freq >= 240.0 && freq <= 260.0) || (freq >= 480.0 && freq <= 520.0)){
-     printf("\n i=%d  frequency=%.2f  signal= %d", i,  freq, s[i]);
-    }
+*/
+  float freq;
+  static int header=0;
+  if (header == 0){
+      for (int i=0; i < data_size; i++) {
+          freq =  i*16000/FFT_SIZE;
+          printf("%.2f , ",freq);
+      }
+      printf("\n");
+      header=1;
   }
+
+  for (int i=0; i < data_size; i++) {
+    //freq=  i*16000/FFT_SIZE;
+    //if  ( (freq >= 240.0 && freq <= 260.0) || (freq >= 480.0 && freq <= 520.0)){
+     printf("%d , ", s[i]);
+    //}
+  }
+  printf("\n");
 
 }
 
@@ -127,10 +137,10 @@ int main(void)
   //cmsis_fft(i250,  FFT_SIZE );
   //cmsis_fft(isound, FFT_SIZE );
 
-  int i=0;
+  //int i=0;
   while (1) {
-     printf("\n %d ", i++);
-     if (i > 999999) i=0;
+     //printf("\n %d ", i++);
+     //if (i > 999999) i=0;
      audioFFT();
   }
 }
