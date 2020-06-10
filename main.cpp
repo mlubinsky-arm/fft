@@ -21,7 +21,8 @@ DigitalOut led(LED1);
 //#include "i500Hz_2048points.h"
 //#include "i250Hz_2048points.h"
 //#include "iSound.h"
-
+#define COLLECTION 0
+#define PREDICTION 1
 #define FFT_SIZE 2048
 //#define FFT_SIZE 1024
 void cmsis_fft(int* data, int data_size);
@@ -94,52 +95,78 @@ void cmsis_fft(int* data, int data_size)
   arm_rfft_q15(&fft_instance, (q15_t*)data, s);
   arm_abs_q15(s, s, FFT_SIZE*2);
 
+  int mode=COLLECTION;
+  if ( mode == PREDICTION) {
+   float coeff[10] = {
+     0.10956007, -0.13896823,  0.01236551,  0.23775266,  0.55015138,
+     0.03702403,  0.01534263,  -0.06332641, -0.08341657, -0.07537096
+   };
 
-float coeff[10] = {
-  0.10956007, -0.13896823,  0.01236551,  0.23775266,  0.55015138,
-  0.03702403,  0.01534263,  -0.06332641, -0.08341657, -0.07537096
-};
+   int fft_index[10]={242, 246, 250, 254, 258, 492, 496, 500, 504, 508};
 
-int fft_index[10]={242, 246, 250, 254, 258, 492, 496, 500, 504, 508};
+   float linear = -1.45595351; // model intercept
+   for (int i=0; i<10; i++){
+     linear = linear +  (coeff[i] * s[fft_index[i]]);
+   }
+   //Logistic regression
+   float  lr = 1.0 / (1.0 + exp(-linear));
+   printf ("\n logistic_regression=%f   linear=%f", lr, linear);
+   led=1; //off
 
-float linear = -1.45595351; // model intercept
-for (int i=0; i<10; i++){
-  linear = linear +  (coeff[i] * s[fft_index[i]]);
-}
-//Logistic regression
-float  lr = 1.0 / (1.0 + exp(-linear));
+   if (lr > 0.5) {
+        printf ("\n ----------------Blink-----------------");
+        led = 0; // on
+        //wait(0.8); //If you wish to wait (without sleeping), call 'wait_us'.
+        ThisThread::sleep_for(800); //ms
+        led=1; // off
+   }
+  }  // END OF PREDICTON
 
-printf ("\n logistic_regression=%f   linear=%f", lr, linear);
-led=1; //off
 
-if (lr > 0.5) {
-  printf ("\n ----------------Blink-----------------");
-  led = 0; // on
-  wait(0.8); //If you wish to wait (without sleeping), call 'wait_us'.
-  //ThisThread::sleep_for(1000); //ms
-  led=1; // off
-}
-/*
-  float freq;
-  static int header=0;
-  if (header == 0){
-      for (int i=0; i < data_size; i++) {
-          freq =  i*16000/FFT_SIZE;
-          printf("%.2f , ",freq);
-      }
-      printf("\n");
-      header=1;
-  }
+  if (mode == COLLECTION){
 
-  for (int i=0; i < data_size; i++) {
-    //freq=  i*16000/FFT_SIZE;
-    //if  ( (freq >= 240.0 && freq <= 260.0) || (freq >= 480.0 && freq <= 520.0)){
-     printf("%d , ", s[i]);
-    //}
-  }
-  printf("\n");
+   static int header=0;
+/*   
+    static char *fmt_float=
+// 1    2    3    4    5    6    7    8    9   10    11   12  13   14   15   16   17    18   19   20   21   22   23   24   25   26   27   28   29  30    31   32
+"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\
+%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f"
+//   ;
 */
-}
+  static const char *fmt_int=
+  //1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32
+  "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d"
+  ;
+
+  if (header == 0){
+      float freq;
+      for (int i=0; i < data_size; i++) {  // 2048 times this is slow
+          freq =  float(i*16000.0)/FFT_SIZE;
+          printf("%.2f,",freq);
+      }
+
+      printf("\n");
+      header=1; // to call it once
+  }
+  // To speedup we call printf() once per 64 datapoins; another possible improvement: use sprintf
+  for (int i=0; i < data_size-1; i+=64) {
+
+    printf(fmt_int,s[i],s[i+1],s[i+2],s[i+3],s[i+4],s[i+5],s[i+6],s[i+7],s[i+8],s[i+9],s[i+10],s[i+11],s[i+12],s[i+13],s[i+14],s[i+15],
+                   s[i+16],s[i+17],s[i+18],s[i+19],s[i+20],s[i+21],s[i+22],s[i+23],s[i+24],s[i+25],s[i+26],s[i+27],s[i+28],s[i+29],s[i+30],s[i+31],
+                   s[i+32],s[i+33],s[i+34],s[i+35],s[i+36],s[i+37],s[i+38],s[i+39],s[i+40],s[i+41],s[i+42],s[i+43],s[i+44],s[i+45],s[i+46],s[i+47],
+                   s[i+48],s[i+49],s[i+50],s[i+51],s[i+52],s[i+53],s[i+54],s[i+55],s[i+56],s[i+57],s[i+58],s[i+59],s[i+60],s[i+61],s[i+62],s[i+63]
+          );
+
+  }
+  /*    slow but works
+   for (int i=0; i < data_size; i++) {
+    printf("%d , ", s[i]);
+   }
+  */
+  printf("\n");
+
+  }   // end of if (mode == COLLECTION){
+}  // end of cmsis_fft
 
 int main(void)
 {
@@ -148,10 +175,7 @@ int main(void)
   //cmsis_fft(i250,  FFT_SIZE );
   //cmsis_fft(isound, FFT_SIZE );
 
-  //int i=0;
   while (1) {
-     //printf("\n %d ", i++);
-     //if (i > 999999) i=0;
      audioFFT();
   }
 }
