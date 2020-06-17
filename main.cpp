@@ -120,7 +120,7 @@ if (OLD_MODEL) {
 }
 else {  // NEW MODEL
 */
-  //float linear = 0.0;
+  float linear = intercept;
    for (int i=0; i<2048; i++){
      linear = linear +  (coeff[i] * s[i]);
    }
