@@ -16,6 +16,7 @@ In this app we need to capture for FFT ~1.2 sec of data (30ms * 40),
 
 DigitalOut led(LED1);
 
+#include "2048_log_coeff.h"
 // Files for testing CMSIS-FFT:
 
 //#include "i500Hz_2048points.h"
@@ -57,12 +58,14 @@ void audioFFT() {
         fft_samples[big_index] = int (audio_samples[j]);
         big_index++;
       }
+      /*
       int32_t  latest_timestamp = LatestAudioTimestamp();
       while (latest_timestamp - previous_timestamp < kFeatureSliceDurationMs){
         ThisThread::sleep_for(kFeatureSliceDurationMs);
         latest_timestamp = LatestAudioTimestamp();
       }
       previous_timestamp = latest_timestamp;
+      */
     }
 
       if (big_index == FFT_SIZE) {
@@ -95,30 +98,50 @@ void cmsis_fft(int* data, int data_size)
   arm_rfft_q15(&fft_instance, (q15_t*)data, s);
   arm_abs_q15(s, s, FFT_SIZE*2);
 
-  int mode=COLLECTION;
+  //int mode=COLLECTION;
+  int mode=PREDICTION;
+ 
   if ( mode == PREDICTION) {
-   float coeff[10] = {
+/*    
+int OLD_MODEL=1;     
+if (OLD_MODEL) {    
+   #define MODEL_SIZE 10
+   float coeff[MODEL_SIZE] = {
      0.10956007, -0.13896823,  0.01236551,  0.23775266,  0.55015138,
      0.03702403,  0.01534263,  -0.06332641, -0.08341657, -0.07537096
    };
 
-   int fft_index[10]={242, 246, 250, 254, 258, 492, 496, 500, 504, 508};
+   int fft_index[MODEL_SIZE]={242, 246, 250, 254, 258, 492, 496, 500, 504, 508};
 
    float linear = -1.45595351; // model intercept
-   for (int i=0; i<10; i++){
+   for (int i=0; i<MODEL_SIZE; i++){
      linear = linear +  (coeff[i] * s[fft_index[i]]);
    }
+}
+else {  // NEW MODEL
+*/
+  //float linear = 0.0;
+   for (int i=0; i<2048; i++){
+     linear = linear +  (coeff[i] * s[i]);
+   }
+  //} // NEW MODEL   
    //Logistic regression
    float  lr = 1.0 / (1.0 + exp(-linear));
-   printf ("\n logistic_regression=%f   linear=%f", lr, linear);
+   printf ("\n logistic_regression=%f   linear=%f  s[0]=%d", lr, linear, s[0]);
    led=1; //off
 
    if (lr > 0.5) {
-        printf ("\n ----------------Blink-----------------");
+        printf ("\n ----------------Blink-----------------\n");
         led = 0; // on
-        //wait(0.8); //If you wish to wait (without sleeping), call 'wait_us'.
         ThisThread::sleep_for(800); //ms
         led=1; // off
+        /*
+         for (int i=0; i<2048; i++){
+           printf("%d ",s[i]);
+           if (i%32 == 0) printf("\n");
+         }
+         printf("\n");
+         */
    }
   }  // END OF PREDICTON
 
@@ -128,7 +151,7 @@ void cmsis_fft(int* data, int data_size)
    static int header=0;
 /*   
     static char *fmt_float=
-// 1    2    3    4    5    6    7    8    9   10    11   12  13   14   15   16   17    18   19   20   21   22   23   24   25   26   27   28   29  30    31   32
+// 1    2    3    4    5  6   7    8    9   10    11   12  13   14   15   16   17    18   19   20   21   22   23   24   25   26   27   28   29  30    31   32
 "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\
 %.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f"
 //   ;
