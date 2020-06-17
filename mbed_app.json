@@ -7,7 +7,8 @@
             "platform.stdio-flush-at-exit"              : true,
             "rtos.main-thread-stack-size"               : 5120,
             "mbed-trace.enable"                         : null,
-            "events.shared-stacksize"                   : 2048
+            "events.shared-stacksize"                   : 2048,
+            "target.printf_lib"                         : "std"
             }
     }
 }

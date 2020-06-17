@@ -58,14 +58,14 @@ void audioFFT() {
         fft_samples[big_index] = int (audio_samples[j]);
         big_index++;
       }
-      /*
+      /*  
       int32_t  latest_timestamp = LatestAudioTimestamp();
       while (latest_timestamp - previous_timestamp < kFeatureSliceDurationMs){
         ThisThread::sleep_for(kFeatureSliceDurationMs);
         latest_timestamp = LatestAudioTimestamp();
       }
       previous_timestamp = latest_timestamp;
-      */
+       */
     }
 
       if (big_index == FFT_SIZE) {
@@ -97,14 +97,16 @@ void cmsis_fft(int* data, int data_size)
 
   arm_rfft_q15(&fft_instance, (q15_t*)data, s);
   arm_abs_q15(s, s, FFT_SIZE*2);
+  //printf("\n debug return");
+  //return; 
 
   //int mode=COLLECTION;
   int mode=PREDICTION;
  
   if ( mode == PREDICTION) {
-/*    
-int OLD_MODEL=1;     
-if (OLD_MODEL) {    
+    
+/*int OLD_MODEL=1;     
+//if (OLD_MODEL) {    
    #define MODEL_SIZE 10
    float coeff[MODEL_SIZE] = {
      0.10956007, -0.13896823,  0.01236551,  0.23775266,  0.55015138,
@@ -115,34 +117,46 @@ if (OLD_MODEL) {
 
    float linear = -1.45595351; // model intercept
    for (int i=0; i<MODEL_SIZE; i++){
+     //printf("%d  %.2f, ",i, coeff[i]);
      linear = linear +  (coeff[i] * s[fft_index[i]]);
    }
-}
+   //return;
+//}
+ 
 else {  // NEW MODEL
-*/
+ */
   float linear = intercept;
    for (int i=0; i<2048; i++){
+     //if (abs(s[i]) > 100000) printf ("\n  index=%d BIG... s[i]=%d", i, s[i]);
      linear = linear +  (coeff[i] * s[i]);
    }
-  //} // NEW MODEL   
+  //} // NEW MODEL
    //Logistic regression
    float  lr = 1.0 / (1.0 + exp(-linear));
-   printf ("\n logistic_regression=%f   linear=%f  s[0]=%d", lr, linear, s[0]);
+   printf ("\n logistic_regression=%.2f linear=%.2f s[0]=%d", lr, linear, s[0]);
+   //printf ("\n linear=%.2f ",  linear);
+   //printf ("\n  s[0]=%d", s[0]);
    led=1; //off
 
    if (lr > 0.5) {
-        printf ("\n ----------------Blink-----------------\n");
+        printf ("\n ----------------Blink-----------------   \n"  );
         led = 0; // on
-        ThisThread::sleep_for(800); //ms
+        ThisThread::sleep_for(3*800); //ms
         led=1; // off
-        /*
+   /* */
          for (int i=0; i<2048; i++){
-           printf("%d ",s[i]);
-           if (i%32 == 0) printf("\n");
+           printf("%d, ",s[i]);
+           if (i >0 && i%32 == 0) printf("\n");
          }
-         printf("\n");
-         */
+         printf("\n ---coeffs --- \n");
+         for (int i=0; i<2048; i++){
+           printf("%.2f, ",coeff[i]);
+           if (i >0 && i%32 == 0) printf("\n");
+         }
+   /*  */    
+   
    }
+   return;
   }  // END OF PREDICTON
 
 
@@ -197,7 +211,23 @@ int main(void)
   //cmsis_fft(i500,  FFT_SIZE );
   //cmsis_fft(i250,  FFT_SIZE );
   //cmsis_fft(isound, FFT_SIZE );
+/*
 
+   float coeff[10] = {
+     0.10956007, -0.13896823,  0.01236551,  0.23775266,  0.55015138,
+     0.03702403,  0.01534263,  -0.06332641, -0.08341657, -0.07537096
+   };
+
+while(1) {
+   float linear = -1.45595351; // model intercept
+   for (int i=0; i<10; i++){
+     //printf(" i=%d  c=%.2f ",i, coeff[i]);
+     printf(" i=%d  c=%.2f ",i, 0.34);
+     //linear = linear +  (coeff[i] * s[fft_index[i]]);
+   }
+   printf("\n");
+}
+*/
   while (1) {
      audioFFT();
   }
