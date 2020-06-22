@@ -1,0 +1,6 @@
+{
+    "name": "tensorflow",
+    "macros": [
+        "TF_LITE_STATIC_MEMORY"
+    ]
+}
