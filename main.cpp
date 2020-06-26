@@ -140,10 +140,10 @@ else {  // NEW MODEL
 
    if (lr > 0.5) {
         printf ("\n ----------------Blink-----------------   \n"  );
-        led = 0; // on
-        ThisThread::sleep_for(3*800); //ms
-        led=1; // off
-   /* */
+        //led = 0; // on
+        //ThisThread::sleep_for(3*800); //ms
+        //led=1; // off
+   /* 
          for (int i=0; i<2048; i++){
            printf("%d, ",s[i]);
            if (i >0 && i%32 == 0) printf("\n");
@@ -153,7 +153,7 @@ else {  // NEW MODEL
            printf("%.2f, ",coeff[i]);
            if (i >0 && i%32 == 0) printf("\n");
          }
-   /*  */    
+     */    
    
    }
    return;
@@ -165,7 +165,7 @@ else {  // NEW MODEL
    static int header=0;
 /*   
     static char *fmt_float=
-// 1    2    3    4    5  6   7    8    9   10    11   12  13   14   15   16   17    18   19   20   21   22   23   24   25   26   27   28   29  30    31   32
+// 1    2    3    4    5    6    7    8    9   10    11   12  13   14   15   16   17    18   19   20   21   22   23   24   25   26   27   28   29  30    31   32
 "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\
 %.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f"
 //   ;
@@ -175,7 +175,7 @@ else {  // NEW MODEL
   "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,"
   ;
 
-  if (header == 0){
+  if (header == 0){ // print header line
       float freq;
       for (int i=0; i < data_size; i++) {  // 2048 times this is slow
           freq =  float(i*16000.0)/FFT_SIZE;
